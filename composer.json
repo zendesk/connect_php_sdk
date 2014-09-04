@@ -1,0 +1,22 @@
+{
+    "name": "outbound/outbound-php",
+    "description": "PHP library for Outbound",
+    "keywords": [
+        "outbound",
+        "outbound php"
+    ],
+    "homepage": "https://github.com/outboundio/lib-php",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Travis Beauvais <travis@outbound.io>",
+            "homepage": "https://outbound.io/"
+        }
+    ],
+    "require": {
+        "php": ">=5.0"
+    },
+    "autoload": {
+        "files": ["lib/outbound.php"]
+    }
+}
