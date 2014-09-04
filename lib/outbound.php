@@ -27,6 +27,14 @@ class Outbound {
     }
 
     /**
+     * This method exists solely for the purpose of testing and should not be
+     * be called outside of the tests.
+     */
+    public static function reset() {
+        self::$api_key = null;
+    }
+
+    /**
      * Make an identify API call to Outbound for a user.
      *
      * @param string|number user_id - ID of the user who needs to be identified.
@@ -36,7 +44,7 @@ class Outbound {
      *      needs to be tracked.
      * @throws OutboundApiException, OutboundConnectionException, OutboundDataException, Exception
      */
-    public static function identify($user_id, Array $user_info, Array $user_attrs)  {
+    public static function identify($user_id, Array $user_info=null, Array $user_attrs=null)  {
         self::_ensure_init();
         $user = self::_build_user($user_id, $user_info, $user_attrs);
         self::_execute(self::IDENTIFY, $user);
@@ -50,7 +58,7 @@ class Outbound {
      * @param Array properties [OPTIONAL] - Any event specific properties to be tracked.
      * @throws OutboundApiException, OutboundConnectionException, OutboundDataException, Exception
      */
-    public static function track($user_id, $event, Array $properties) {
+    public static function track($user_id, $event, Array $properties=null) {
         self::_ensure_init();
         $user = self::_build_user($user_id);
 
