@@ -1,5 +1,18 @@
 # Outbound PHP Library
 
+## Installation
+### Clone
+
+    git clone https://github.com/outboundio/lib-php.git
+
+### Composer
+
+    "require": {
+        ...
+        "outbound/outbound-php" : "1.*"
+        ...
+    }
+
 ## Setup
 
     require_once('lib/outbound.php');
