@@ -9,10 +9,17 @@ class OutboundDataException extends Exception {}
 class OutboundConnectionException extends Exception {}
 
 class Outbound {
-    const VERSION = 0.1;
+    const VERSION = 0.2;
 
     const TRACK = 1;
     const IDENTIFY = 2;
+    const REGISTER_APNS = 3;
+    const REGISTER_GCM = 4;
+    const REVOKE_APNS = 5;
+    const REVOKE_GCM = 6;
+
+    const APNS = "apns";
+    const GCM = "gcm";
 
     const URL_ROOT = 'https://api.outbound.io/v2';
 
@@ -76,6 +83,60 @@ class Outbound {
         self::_execute(self::TRACK, $data);
     }
 
+    /**
+     * Register a device token for push notifications.
+     *
+     * @param string platform - The platform the token is for (Outbound::APNS or Outbound::GCM)
+     * @param string|number user_id - ID of the user who the token belongs to.
+     * @param string token - The token registered to the user's device.
+     * @throws OutboundApiException, OutboundConnectionException, OutboundDataException, Exception
+     */
+    public static function register_token($platform, $user_id, $token) {
+        self::_ensure_init();
+        self::_validate_user_id($user_id);
+
+        if (!in_array($platform, array(self::APNS, self::GCM))) {
+            throw new OutboundDataException('Invalid platform (' . $platform . ').');
+        }
+
+        if (!is_string($token)) {
+            throw new OutboundDataException('Token must be a string. Received ' . (!is_callable($token) ? gettype($token) : 'function') . '.');
+        }
+
+        $data = array(
+            'token' => $token,
+            'user_id' => $user_id,
+        );
+        self::_execute($platform == self::APNS ? self::REGISTER_APNS : self::REGISTER_GCM, $data);
+    }
+
+    /**
+     * Revoke a device token for push notifications.
+     *
+     * @param string platform - The platform the token is for (Outbound::APNS or Outbound::GCM)
+     * @param string|number user_id - ID of the user who the token belongs to.
+     * @param string token - The token registered to the user's device.
+     * @throws OutboundApiException, OutboundConnectionException, OutboundDataException, Exception
+     */
+    public static function revoke_token($platform, $user_id, $token) {
+        self::_ensure_init();
+        self::_validate_user_id($user_id);
+
+        if (!in_array($platform, array(self::APNS, self::GCM))) {
+            throw new OutboundDataException('Invalid platform (' . $platform . ').');
+        }
+
+        if (!is_string($token)) {
+            throw new OutboundDataException('Token must be a string. Received ' . (!is_callable($token) ? gettype($token) : 'function') . '.');
+        }
+
+        $data = array(
+            'token' => $token,
+            'user_id' => $user_id,
+        );
+        self::_execute($platform == self::APNS ? self::REVOKE_APNS : self::REVOKE_GCM, $data);
+    }
+
     private static function _ensure_init() {
         if (!self::$api_key) {
             throw new Exception('init() must be called before anything else.');
@@ -137,6 +198,14 @@ class Outbound {
             $url .= '/track';
         } elseif ($call == self::IDENTIFY) {
             $url .= '/identify';
+        } elseif ($call == self::REGISTER_APNS) {
+            $url .= '/apns/register';
+        } elseif ($call == self::REGISTER_GCM) {
+            $url .= '/gcm/register';
+        } elseif ($call == self::REVOKE_APNS) {
+            $url .= '/apns/revoke';
+        } elseif ($call == self::REVOKE_GCM) {
+            $url .= '/gcm/revoke';
         } else {
             throw new Exception('Unsupported API call (' . $call . ') given.');
         }

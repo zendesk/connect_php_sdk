@@ -33,4 +33,25 @@ class OutboundTest extends PHPUnit_Framework_TestCase {
     public function testEventNameForTrack() {
         Outbound::track('user_id', 9);
     }
+
+    /**
+     * @expectedException OutboundDataException
+     */
+    public function testPlatformForRegister() {
+        Outbound::register_token('platform', 'user_id', 'token');
+    }
+
+    /**
+     * @expectedException OutboundDataException
+     */
+    public function testUserIdForRegister() {
+        Outbound::register_token(Outbound::APNS, array('user_id'), 'token');
+    }
+
+    /**
+     * @expectedException OutboundDataException
+     */
+    public function testTokenForRegister() {
+        Outbound::register_token(Outbound::APNS, 'user_id', 9);
+    }
 }
