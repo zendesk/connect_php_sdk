@@ -15,8 +15,8 @@ class Outbound {
     const IDENTIFY = 2;
     const REGISTER_APNS = 3;
     const REGISTER_GCM = 4;
-    const REVOKE_APNS = 5;
-    const REVOKE_GCM = 6;
+    const DISABLE_APNS = 5;
+    const DISABLE_GCM = 6;
 
     const APNS = "apns";
     const GCM = "gcm";
@@ -111,14 +111,14 @@ class Outbound {
     }
 
     /**
-     * Revoke a device token for push notifications.
+     * Disable a device token for push notifications.
      *
      * @param string platform - The platform the token is for (Outbound::APNS or Outbound::GCM)
      * @param string|number user_id - ID of the user who the token belongs to.
      * @param string token - The token registered to the user's device.
      * @throws OutboundApiException, OutboundConnectionException, OutboundDataException, Exception
      */
-    public static function revoke_token($platform, $user_id, $token) {
+    public static function disable_token($platform, $user_id, $token) {
         self::_ensure_init();
         self::_validate_user_id($user_id);
 
@@ -134,7 +134,7 @@ class Outbound {
             'token' => $token,
             'user_id' => $user_id,
         );
-        self::_execute($platform == self::APNS ? self::REVOKE_APNS : self::REVOKE_GCM, $data);
+        self::_execute($platform == self::APNS ? self::DISABLE_APNS : self::DISABLE_GCM, $data);
     }
 
     private static function _ensure_init() {
@@ -202,10 +202,10 @@ class Outbound {
             $url .= '/apns/register';
         } elseif ($call == self::REGISTER_GCM) {
             $url .= '/gcm/register';
-        } elseif ($call == self::REVOKE_APNS) {
-            $url .= '/apns/revoke';
-        } elseif ($call == self::REVOKE_GCM) {
-            $url .= '/gcm/revoke';
+        } elseif ($call == self::DISABLE_APNS) {
+            $url .= '/apns/disable';
+        } elseif ($call == self::DISABLE_GCM) {
+            $url .= '/gcm/disable';
         } else {
             throw new Exception('Unsupported API call (' . $call . ') given.');
         }
