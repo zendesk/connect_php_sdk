@@ -9,7 +9,7 @@ class OutboundDataException extends Exception {}
 class OutboundConnectionException extends Exception {}
 
 class Outbound {
-    const VERSION = 1.1.0;
+    const VERSION = 1.2.0;
 
     const TRACK = 1;
     const IDENTIFY = 2;
@@ -182,6 +182,9 @@ class Outbound {
                 'phone_number' => null,
                 'apns' => null,
                 'gcm' => null,
+                'group_id' => null,
+                'group_attributes' => null,
+                'previous_id' => null,
             )
         );
         $user_info['user_id'] = $user_id;
