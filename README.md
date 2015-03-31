@@ -76,7 +76,6 @@ You can create a set of attributes and have them be inherited by a group of user
 - Users in a group will inherit group attributes but user attributes take precedences. So if there is an attribute `state` set on the group and it is set to "California" and there is also a `state` attribute set on the user but set to "New York", the value for that user is "New York". If the user didn't have that attribute, the value of `state` for that user would be the group value which is "California".
 - You only need to pass in the group attributes when they are initially set or when they are updated but you do need to set the group id for each user you want to be in the group.
 
-
 ### Event Name
 - An event name in a track can only be a string. Any other type of value will throw an exception and the call will not be sent to Outbound.
 - Event names can be anything you want them to be (as long as they are strings) and contain any character you want.
