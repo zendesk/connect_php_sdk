@@ -9,7 +9,7 @@ class OutboundDataException extends Exception {}
 class OutboundConnectionException extends Exception {}
 
 class Outbound {
-    const VERSION = '1.2.0';
+    const VERSION = '2.0.0';
 
     const TRACK = 1;
     const IDENTIFY = 2;
@@ -51,9 +51,9 @@ class Outbound {
      *      needs to be tracked.
      * @throws OutboundApiException, OutboundConnectionException, OutboundDataException, Exception
      */
-    public static function identify($user_id, Array $user_info=null, Array $user_attrs=null)  {
+    public static function identify($user_id, Array $user_info=null)  {
         self::_ensure_init();
-        $user = self::_build_user($user_id, $user_info, $user_attrs);
+        $user = self::_build_user($user_id, $user_info);
         self::_execute(self::IDENTIFY, $user);
     }
 
@@ -65,7 +65,7 @@ class Outbound {
      * @param Array properties [OPTIONAL] - Any event specific properties to be tracked.
      * @throws OutboundApiException, OutboundConnectionException, OutboundDataException, Exception
      */
-    public static function track($user_id, $event, Array $properties=null) {
+    public static function track($user_id, $event, Array $properties=null, $timestamp=null) {
         self::_ensure_init();
         $user = self::_build_user($user_id);
 
@@ -79,6 +79,11 @@ class Outbound {
         );
         if ($properties) {
             $data['properties'] = $properties;
+        }
+        if (!$timestamp) {
+          $data['timestamp'] = time();
+        } else {
+          $data['timestamp'] = $timestamp;
         }
         self::_execute(self::TRACK, $data);
     }
@@ -169,7 +174,7 @@ class Outbound {
      * @throws OutboundDataException
      * @return Array
      */
-    private static function _build_user($user_id, Array $user_info=null, Array $user_attrs=null) {
+    private static function _build_user($user_id, Array $user_info=null) {
         self::_validate_user_id($user_id);
 
         $user_info = $user_info ? $user_info : array();
@@ -185,13 +190,14 @@ class Outbound {
                 'group_id' => null,
                 'group_attributes' => null,
                 'previous_id' => null,
+                'attributes' => null,
             )
         );
         $user_info['user_id'] = $user_id;
 
-        if ($user_attrs) {
-            $user_info['attributes'] = $user_attrs;
-        }
+        // if ($user_info['attributes']) {
+        //     $user_info['attributes'] = $user_info['attributes'];
+        // }
         return $user_info;
     }
 
