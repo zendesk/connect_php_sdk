@@ -194,10 +194,7 @@ class Outbound {
             )
         );
         $user_info['user_id'] = $user_id;
-
-        // if ($user_info['attributes']) {
-        //     $user_info['attributes'] = $user_info['attributes'];
-        // }
+        
         return $user_info;
     }
 
