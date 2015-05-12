@@ -194,8 +194,10 @@ class Outbound {
             )
         );
         $user_info['user_id'] = $user_id;
-        
-        return $user_info;
+
+        return array_filter($user_info, function($v) {
+          return !empty($v);
+        });
     }
 
     private static function _build_url($call) {
