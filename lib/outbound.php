@@ -9,7 +9,7 @@ class OutboundDataException extends Exception {}
 class OutboundConnectionException extends Exception {}
 
 class Outbound {
-    const VERSION = '2.0.0';
+    const VERSION = '2.1.0';
 
     const TRACK = 1;
     const IDENTIFY = 2;
@@ -17,6 +17,10 @@ class Outbound {
     const REGISTER_GCM = 4;
     const DISABLE_APNS = 5;
     const DISABLE_GCM = 6;
+    const UNSUBSCRIBE_ALL = 7;
+    const UNSUBSCRIBE_CAMP = 8;
+    const SUBSCRIBE_ALL = 9;
+    const SUBSCRIBE_CAMP = 10;
 
     const APNS = "apns";
     const GCM = "gcm";
@@ -86,6 +90,48 @@ class Outbound {
           $data['timestamp'] = $timestamp;
         }
         self::_execute(self::TRACK, $data);
+    }
+
+    /**
+     * Unsubscribe a user from all campaigns on Outbound.
+     *
+     * @param string|number user_id - Unique ID of the user to unsubscribe
+     * @throws OutboundApiException, OutboundConnectionException, OutboundDataException, Exception
+     */
+    public static function unsubscribe_from_all_campaigns($user_id) {
+        self::_make_subscription_call(self::UNSUBSCRIBE_ALL, $user_id, array());
+    }
+
+    /**
+     * Unsubscribe a user from a specific list of campaigns on Outbound.
+     *
+     * @param string|number user_id - Unique ID of the user to unsubscribe
+     * @param array campaign_ids - List of campaign IDs to unsubscribe the user from.
+     * @throws OutboundApiException, OutboundConnectionException, OutboundDataException, Exception
+     */
+    public static function unsubscribe_from_campaigns($user_id, Array $campaign_ids) {
+        self::_make_subscription_call(self::UNSUBSCRIBE_CAMP, $user_id, $campaign_ids);
+    }
+
+    /**
+     * Subscribe a user too all campaigns on Outbound.
+     *
+     * @param string|number user_id - Unique ID of the user to unsubscribe
+     * @throws OutboundApiException, OutboundConnectionException, OutboundDataException, Exception
+     */
+    public static function subscribe_to_all_campaigns($user_id) {
+        self::_make_subscription_call(self::SUBSCRIBE_ALL, $user_id, array());
+    }
+
+    /**
+     * Subscribe a user to a specific list of campaigns on Outbound.
+     *
+     * @param string|number user_id - Unique ID of the user to unsubscribe
+     * @param array campaign_ids - List of campaign IDs to unsubscribe the user from.
+     * @throws OutboundApiException, OutboundConnectionException, OutboundDataException, Exception
+     */
+    public static function subscribe_to_campaigns($user_id, Array $campaign_ids) {
+        self::_make_subscription_call(self::SUBSCRIBE_CAMP, $user_id, $campaign_ids);
     }
 
     /**
@@ -200,7 +246,30 @@ class Outbound {
         });
     }
 
+    private static function _make_subscription_call($call, $user_id, Array $campaign_ids) {
+        self::_ensure_init();
+        self::_validate_user_id($user_id);
+
+        $data = array(
+            "user_id" => $user_id,
+        );
+
+        if ($call == self::UNSUBSCRIBE_CAMP || $call == self::SUBSCRIBE_CAMP) {
+            if (count($campaign_ids) == 0) {
+                throw new OutboundDataException("At least one campaign required.");
+            }
+            $data["campaign_ids"] = $campaign_ids;
+        }
+        self::_execute($call, $data);
+    }
+
     private static function _build_url($call) {
+        $subscribe_calls = array(self::SUBSCRIBE_ALL, self::SUBSCRIBE_CAMP);
+        $unsubscribe_calls = array(self::UNSUBSCRIBE_ALL, self::UNSUBSCRIBE_CAMP);
+        $all_subscriptions = array(self::SUBSCRIBE_ALL, self::UNSUBSCRIBE_ALL);
+        $camp_subscriptions = array(self::SUBSCRIBE_CAMP, self::UNSUBSCRIBE_CAMP);
+        $subscription_calls = array_merge($subscribe_calls, $unsubscribe_calls);
+
         $url = self::URL_ROOT;
         if ($call == self::TRACK) {
             $url .= '/track';
@@ -214,6 +283,18 @@ class Outbound {
             $url .= '/apns/disable';
         } elseif ($call == self::DISABLE_GCM) {
             $url .= '/gcm/disable';
+        } elseif (in_array($call, $subscription_calls)) {
+            if (in_array($call, $subscribe_calls)) {
+                $url .= '/subscribe';
+            } else {
+                $url .= '/unsubscribe';
+            }
+
+            if (in_array($call, $all_subscriptions)) {
+                $url .= '/all';
+            } else {
+                $url .= '/campaigns';
+            }
         } else {
             throw new Exception('Unsupported API call (' . $call . ') given.');
         }
