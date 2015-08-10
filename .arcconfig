@@ -1,4 +1,5 @@
 {
+        "repository.callsign": "PHPLIB",
         "phabricator.uri": "http://phabricator.outbound.io",
         "base": "git:HEAD^"
 }
