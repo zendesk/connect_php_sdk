@@ -9,7 +9,7 @@ class OutboundDataException extends Exception {}
 class OutboundConnectionException extends Exception {}
 
 class Outbound {
-    const VERSION = '2.1.0';
+    const VERSION = '2.0.0';
 
     const TRACK = 1;
     const IDENTIFY = 2;
@@ -183,6 +183,28 @@ class Outbound {
 
         $data = array(
             'token' => $token,
+            'user_id' => $user_id,
+        );
+        self::_execute($platform == self::APNS ? self::DISABLE_APNS : self::DISABLE_GCM, $data);
+    }
+
+    /**
+     * Disable all device tokens a user has on the specified platform.
+     *
+     * @param string platform - The platform the token is for (Outbound::APNS or Outbound::GCM)
+     * @param string|number user_id - ID of the user who the token belongs to.
+     * @throws OutboundApiException, OutboundConnectionException, OutboundDataException, Exception
+     */
+    public static function disable_all_tokens($platform, $user_id) {
+        self::_ensure_init();
+        self::_validate_user_id($user_id);
+
+        if (!in_array($platform, array(self::APNS, self::GCM))) {
+            throw new OutboundDataException('Invalid platform (' . $platform . ').');
+        }
+
+        $data = array(
+            'all' => true,
             'user_id' => $user_id,
         );
         self::_execute($platform == self::APNS ? self::DISABLE_APNS : self::DISABLE_GCM, $data);
