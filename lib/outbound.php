@@ -9,7 +9,7 @@ class OutboundDataException extends Exception {}
 class OutboundConnectionException extends Exception {}
 
 class Outbound {
-    const VERSION = '2.0.0';
+    const VERSION = '2.1.0';
 
     const TRACK = 1;
     const IDENTIFY = 2;
