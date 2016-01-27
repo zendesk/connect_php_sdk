@@ -46,6 +46,20 @@ class Outbound {
     }
 
     /**
+     * Alias one user id to another.
+     *
+     * @param string|number user_id - ID of the user who needs to be aliased.
+     * @param string|number previous_id - ID of the previous who needs to be aliased.
+     * @throws OutboundApiException, OutboundConnectionException, OutboundDataException, Exception
+     */
+    public static function alias($user_id, $previous_id) {
+        self::_ensure_init();
+        $user = self::_build_user($user_id);
+        $user["previous_id"] = $previous_id;
+        self::_execute(self::IDENTIFY, $user);
+    }
+
+    /**
      * Make an identify API call to Outbound for a user.
      *
      * @param string|number user_id - ID of the user who needs to be identified.
